@@ -1,6 +1,15 @@
 #!/bin/sh
 
+# Prepare environment
 . /home/ubuntu/.env
+
+# Export vars
+set -a
+. /home/ubuntu/.gov.env
+. /home/ubuntu/.vmd.env
+set +a
+#export VMD_USER=$VMD_USER
+#export VMD_PASS=$VMD_PASS
 
 # Set up HTTP proxy support
 if ! [ -z "$HTTP_PROXY_HOST" ]; then
@@ -28,8 +37,18 @@ EOF
   sudo mv /home/ubuntu/docker-proxy /etc/systemd/system/docker.service.d/proxy.conf
 fi
 
-if [ -f /home/ubuntu/tanzu-cli.tar.gz ]; then
-  cd /home/ubuntu && gunzip /home/ubuntu/tanzu-cli.tar.gz
+# Install vmd 
+if ! [ -f /usr/local/bin/vmd ]; then
+  curl -L https://github.com/laidbackware/vmd/releases/download/v0.3.0/vmd-linux-v0.3.0 -o /home/ubuntu/vmd-linux-v0.3.0 && \
+    sudo install /home/ubuntu/vmd-linux-v0.3.0 /usr/local/bin/vmd && \
+    rm /home/ubuntu/vmd-linux-v0.3.0
+    cat ~/.vmd.env >> ~/.bashrc
+fi
+
+# Download Tanzu CLI
+if ! [ -f /home/ubuntu/vmd-downloads/tanzu-cli-bundle-linux-amd64.tar ]; then
+  vmd download -p vmware_tanzu_kubernetes_grid -s tkg -v 1.4.2 -f 'tanzu-cli-bundle-linux-amd64.tar' --accepteula && \
+    cp /home/ubuntu/vmd-downloads/tanzu-cli-bundle-linux-amd64.tar /home/ubuntu/tanzu-cli.tar
 fi
 
 # Uncompress TKG archive and install CLI.
@@ -45,23 +64,13 @@ if [ -f /home/ubuntu/tanzu-cli.tar ]; then
     tanzu init && \
     tanzu plugin clean
 
-    # For TKG 1.4 and earlier:
-    tanzu plugin install --local /home/ubuntu/tanzu/cli all
+  # For TKG 1.4 and earlier:
+  tanzu plugin install --local /home/ubuntu/tanzu/cli all
 
-    # For TKG 1.5+:
-    cd /home/ubuntu/tanzu && tanzu plugin sync
+  # For TKG 1.5+:
+  cd /home/ubuntu/tanzu && tanzu plugin sync
 
-    cd /home/ubuntu && mkdir -p /home/ubuntu/.config/tanzu && \
-    tanzu completion bash > /home/ubuntu/.config/tanzu/completion.bash.inc && \
-    printf "\n# Tanzu shell completion\nsource '/home/ubuntu/.config/tanzu/completion.bash.inc'\n" >> ~/.bashrc
-fi
-
-# Uncompress TCE archive and install CLI.
-if [ -f /home/ubuntu/tce.tar.gz ]; then
-  mkdir /home/ubuntu/tanzu && mv /home/ubuntu/tce.tar.gz /home/ubuntu/tanzu && \
-    cd /home/ubuntu/tanzu && tar --strip-components=1 -zxvf tce.tar.gz && \
-    ./install.sh && \
-    mkdir -p /home/ubuntu/.config/tanzu && \
+  cd /home/ubuntu && mkdir -p /home/ubuntu/.config/tanzu && \
     tanzu completion bash > /home/ubuntu/.config/tanzu/completion.bash.inc && \
     printf "\n# Tanzu shell completion\nsource '/home/ubuntu/.config/tanzu/completion.bash.inc'\n" >> ~/.bashrc
 fi
@@ -107,6 +116,17 @@ if [ -f /home/ubuntu/tkg-cluster.yml ]; then
 VSPHERE_SSH_AUTHORIZED_KEY: "$SSH_PUBLIC_KEY"
 EOF
   /bin/rm -f /home/ubuntu/tkg-cluster.yml
+fi
+
+# Upload TKG OVA
+TKG_OVA_NAME=photon-3-kube-v1.21.8+vmware.1-tkg.2-49e70fcb8bdd006b8a1cf7823484f98f
+TKG_OVA_FILE=$TKG_OVA_FILE.ova
+if ! [ -f /home/ubuntu/vmd-downloads/$TKG_OVA_FILE ]; then
+  vmd download -p vmware_tanzu_kubernetes_grid -s tkg -v 1.4.2 -f $TKG_OVA_FILE --accepteula && \
+    govc import.spec ${TKG_OVA_FILE} | jq '.Name="'${TKG_OVA_NAME}'"' | jq '.NetworkMapping [0].Network="'"${GOVC_NETWORK}"'"' > ${OVA_NAME}.json && \
+    govc import.ova -options=${OVA_NAME}.json ${OVA_FILE} && \
+    govc vm.markastemplate ${OVA_NAME} && \
+    rm ${OVA_NAME}.json
 fi
 
 # Install yq.

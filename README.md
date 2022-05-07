@@ -9,16 +9,6 @@ the open source version of TKG.
 
 ## Prerequisites
 
-### Download components
-
-Download TKG bits to your workstation. The following components are required:
-
-- Tanzu CLI for Linux: includes the `tanzu` CLI used to operate TKG and workload clusters from the jumpbox VM
-- OS node OVA: used for TKG nodes (based on Photon OS and Ubuntu)
-- [Ubuntu server cloud image OVA](https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.ova): used for the jumpbox VM
-
-Make sure to copy the Tanzu CLI archive (`tanzu-cli-bundle-*.tar`) to this repository.
-
 ### Prepare vSphere infrastructure
 
 First, make sure DHCP is enabled: this service is required for all TKG nodes.
@@ -29,9 +19,8 @@ Create a resource pool under the cluster where TKG is deployed to: use name `TKG
 
 All TKG VMs will be deployed to this resource pool.
 
-You need to deploy all OVA files as OVF templates to vSphere.
-
-Repeat the next steps for each OVA file:
+You need to deploy Ubuntu as OVF templates to vSphere to initilize the VM.
+- [Ubuntu server cloud image OVA](https://cloud-images.ubuntu.com/focal/20220505/focal-server-cloudimg-amd64.ova): used for the jumpbox VM
 
 ![Deploy OVF template](images/vsphere-deploy-ovf-part1.png)
 

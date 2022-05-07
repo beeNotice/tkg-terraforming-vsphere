@@ -30,9 +30,24 @@ resource "local_file" "govc_file" {
     content = templatefile("govc.tpl", {
       vsphere_server   = var.vsphere_server,
       vsphere_user     = var.vsphere_user,
-      vsphere_password = var.vsphere_password
+      vsphere_password = var.vsphere_password,
+      datacenter  = var.datacenter,
+      network  = var.network,
+      datastore  = var.datastore,
+      resource_pool  = var.resource_pool,
+      vm_folder  = var.vm_folder
     })
     filename        = "govc.env"
+    file_permission = "0644"
+}
+
+# Generate vmd configuration file.
+resource "local_file" "vmd_file" {
+    content = templatefile("vmd.tpl", {
+      customerconnect_user   = var.customerconnect_user,
+      customerconnect_pass   = var.customerconnect_pass
+    })
+    filename        = "vmd.env"
     file_permission = "0644"
 }
 
@@ -48,7 +63,7 @@ resource "vsphere_virtual_machine" "jumpbox" {
   wait_for_guest_ip_timeout  = 2
 
   num_cpus = 2
-  memory   = 6144
+  memory   = 8192
   guest_id = "ubuntu64Guest"
   folder   = vsphere_folder.vm_folder.path
 
@@ -59,7 +74,7 @@ resource "vsphere_virtual_machine" "jumpbox" {
   disk {
     label            = "disk0"
     thin_provisioned = true
-    size             = 20
+    size             = 200
   }
 
   clone {
@@ -91,11 +106,6 @@ resource "vsphere_virtual_machine" "jumpbox" {
       private_key = file("~/.ssh/id_rsa")
   }
   provisioner "file" {
-    # Copy Tanzu CLI.
-    source      = var.tanzu_cli_file_name
-    destination = length(regexall("tce.*", var.tanzu_cli_file_name)) > 0 ? "/home/ubuntu/tce.tar.gz" : (length(regexall(".*.tar.gz", var.tanzu_cli_file_name)) > 0 ? "/home/ubuntu/tanzu-cli.tar.gz" : "/home/ubuntu/tanzu-cli.tar")
-  }
-  provisioner "file" {
     # Copy TKG configuration file.
     source      = "tkg-cluster.yml"
     destination = "/home/ubuntu/tkg-cluster.yml"
@@ -111,6 +121,11 @@ resource "vsphere_virtual_machine" "jumpbox" {
     destination = "/home/ubuntu/.govc.env"
   }
   provisioner "file" {
+    # Copy vmd configuration file.
+    source      = "vmd.env"
+    destination = "/home/ubuntu/.vmd.env"
+  }
+  provisioner "file" {
     # Copy install scripts.
     source      = "setup-jumpbox.sh"
     destination = "/home/ubuntu/setup-jumpbox.sh"
@@ -120,7 +135,7 @@ resource "vsphere_virtual_machine" "jumpbox" {
     inline = [
       "echo ${vsphere_virtual_machine.jumpbox.default_ip_address} jumpbox | sudo tee -a /etc/hosts",
       "chmod +x /home/ubuntu/setup-jumpbox.sh",
-      "sh /home/ubuntu/setup-jumpbox.sh ",
+      "sh /home/ubuntu/setup-jumpbox.sh",
     ]
   }
 }

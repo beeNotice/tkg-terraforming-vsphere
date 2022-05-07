@@ -34,9 +34,9 @@ data "vsphere_virtual_machine" "ubuntu_template" {
 }
 
 resource "local_file" "vsphere_storage_class" {
-    content = templatefile("vsphere-storageclass.yml.tpl", {
-      datastore_url = var.datastore_url,
-    })
-    filename        = "vsphere-storageclass.yml"
-    file_permission = "0644"
+  content = templatefile("vsphere-storageclass.yml.tpl", {
+    datastore_url = var.datastore_url,
+  })
+  filename        = "vsphere-storageclass.yml"
+  file_permission = "0644"
 }

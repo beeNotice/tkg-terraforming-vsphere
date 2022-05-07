@@ -1,54 +1,55 @@
 # Generate TKG configuration.
 resource "local_file" "tkg_configuration_file" {
-    content = templatefile("tkg-cluster.yml.tpl", {
-      vcenter_server       = var.vsphere_server,
-      vcenter_user         = var.vsphere_user,
-      vcenter_password     = var.vsphere_password,
-      datacenter           = var.datacenter,
-      datastore            = var.datastore,
-      network              = var.network,
-      resource_pool        = var.resource_pool,
-      vm_folder            = var.vm_folder
-    })
-    filename        = "tkg-cluster.yml"
-    file_permission = "0644"
+  content = templatefile("tkg-cluster.yml.tpl", {
+    vcenter_server   = var.vsphere_server,
+    vcenter_user     = var.vsphere_user,
+    vcenter_password = var.vsphere_password,
+    datacenter       = var.datacenter,
+    datastore        = var.datastore,
+    network          = var.network,
+    resource_pool    = var.resource_pool,
+    vm_folder        = var.vm_folder
+  })
+  filename        = "tkg-cluster.yml"
+  file_permission = "0644"
 }
 
 # Generate additional configuration file.
 resource "local_file" "env_file" {
-    content = templatefile("env.tpl", {
-      http_proxy_host        = var.http_proxy_host,
-      http_proxy_port        = var.http_proxy_port,
-      control_plane_endpoint = var.control_plane_endpoint
-    })
-    filename        = "env"
-    file_permission = "0644"
+  content = templatefile("env.tpl", {
+    http_proxy_host        = var.http_proxy_host,
+    http_proxy_port        = var.http_proxy_port,
+    control_plane_endpoint = var.control_plane_endpoint
+  })
+  filename        = "env"
+  file_permission = "0644"
 }
 
 # Generate govc configuration file.
 resource "local_file" "govc_file" {
-    content = templatefile("govc.tpl", {
-      vsphere_server   = var.vsphere_server,
-      vsphere_user     = var.vsphere_user,
-      vsphere_password = var.vsphere_password,
-      datacenter  = var.datacenter,
-      network  = var.network,
-      datastore  = var.datastore,
-      resource_pool  = var.resource_pool,
-      vm_folder  = var.vm_folder
-    })
-    filename        = "govc.env"
-    file_permission = "0644"
+  content = templatefile("govc.tpl", {
+    vsphere_server   = var.vsphere_server,
+    vsphere_user     = var.vsphere_user,
+    vsphere_password = var.vsphere_password,
+    datacenter       = var.datacenter,
+    cluster          = var.cluster,
+    network          = var.network,
+    datastore        = var.datastore,
+    resource_pool    = var.resource_pool,
+    vm_folder        = var.vm_folder
+  })
+  filename        = "govc.env"
+  file_permission = "0644"
 }
 
 # Generate vmd configuration file.
 resource "local_file" "vmd_file" {
-    content = templatefile("vmd.tpl", {
-      customerconnect_user   = var.customerconnect_user,
-      customerconnect_pass   = var.customerconnect_pass
-    })
-    filename        = "vmd.env"
-    file_permission = "0644"
+  content = templatefile("vmd.tpl", {
+    customerconnect_user = var.customerconnect_user,
+    customerconnect_pass = var.customerconnect_pass
+  })
+  filename        = "vmd.env"
+  file_permission = "0644"
 }
 
 # Use the jumpbox to access TKG from the outside.
@@ -93,17 +94,17 @@ resource "vsphere_virtual_machine" "jumpbox" {
     properties = {
       "instance-id" = "jumpbox"
       "hostname"    = "jumpbox"
-      
+
       # Use our own public SSH key to connect to the VM.
       "public-keys" = file("~/.ssh/id_rsa.pub")
     }
   }
 
   connection {
-      host        = vsphere_virtual_machine.jumpbox.default_ip_address
-      timeout     = "30s"
-      user        = "ubuntu"
-      private_key = file("~/.ssh/id_rsa")
+    host        = vsphere_virtual_machine.jumpbox.default_ip_address
+    timeout     = "30s"
+    user        = "ubuntu"
+    private_key = file("~/.ssh/id_rsa")
   }
   provisioner "file" {
     # Copy TKG configuration file.

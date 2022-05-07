@@ -5,7 +5,7 @@
 
 # Export vars
 set -a
-. /home/ubuntu/.gov.env
+. /home/ubuntu/.govc.env
 . /home/ubuntu/.vmd.env
 set +a
 #export VMD_USER=$VMD_USER
@@ -81,7 +81,6 @@ if ! [ -f /home/ubuntu/.config/tanzu/tkg/clusterconfigs/mgmt-cluster-config.yaml
   mkdir -p ~/.config/tanzu/tkg/clusterconfigs
   cat <<EOF >> ~/.config/tanzu/tkg/clusterconfigs/mgmt-cluster-config.yaml
 CLUSTER_NAME: mgmt
-CLUSTER_PLAN: dev
 VSPHERE_CONTROL_PLANE_ENDPOINT: "$CONTROL_PLANE_ENDPOINT"
 EOF
 fi
@@ -118,19 +117,21 @@ EOF
   /bin/rm -f /home/ubuntu/tkg-cluster.yml
 fi
 
+# Install yq.
+sudo snap install jq
+sudo snap install yq
+
 # Upload TKG OVA
 TKG_OVA_NAME=photon-3-kube-v1.21.8+vmware.1-tkg.2-49e70fcb8bdd006b8a1cf7823484f98f
-TKG_OVA_FILE=$TKG_OVA_FILE.ova
-if ! [ -f /home/ubuntu/vmd-downloads/$TKG_OVA_FILE ]; then
+TKG_OVA_FILE=$TKG_OVA_NAME.ova
+TKG_OVA_PATH=/home/ubuntu/vmd-downloads/$TKG_OVA_FILE
+if ! [ -f $TKG_OVA_PATH ]; then
   vmd download -p vmware_tanzu_kubernetes_grid -s tkg -v 1.4.2 -f $TKG_OVA_FILE --accepteula && \
-    govc import.spec ${TKG_OVA_FILE} | jq '.Name="'${TKG_OVA_NAME}'"' | jq '.NetworkMapping [0].Network="'"${GOVC_NETWORK}"'"' > ${OVA_NAME}.json && \
-    govc import.ova -options=${OVA_NAME}.json ${OVA_FILE} && \
-    govc vm.markastemplate ${OVA_NAME} && \
-    rm ${OVA_NAME}.json
+    govc import.spec ${TKG_OVA_PATH} | jq '.Name="'${TKG_OVA_NAME}'"' | jq '.NetworkMapping [0].Network="'"${GOVC_NETWORK}"'"' > tkg-ova.json && \
+    govc import.ova -options=tkg-ova.json ${TKG_OVA_PATH} && \
+    govc vm.markastemplate ${TKG_OVA_NAME} && \
+    rm tkg-ova.json
 fi
-
-# Install yq.
-sudo snap install yq
 
 # Configure VIm.
 if ! [ -f /home/ubuntu/.vimrc ]; then
@@ -172,3 +173,9 @@ if ! [ -f /usr/local/bin/kubectx ]; then
   sudo install /home/ubuntu/kubectx /usr/local/bin/kubectx && \
   rm /home/ubuntu/kubectx /home/ubuntu/kubectx.tar.gz
 fi
+
+# Install Kind.
+KIND_VERSION=v0.11.1
+curl -Lo ./kind https://kind.sigs.k8s.io/dl/$KIND_VERSION/kind-linux-amd64
+sudo mv kind /usr/local/bin
+chmod +x /usr/local/bin/kind

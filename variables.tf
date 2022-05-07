@@ -1,5 +1,5 @@
 variable "vsphere_user" {
-  type    = string
+  type = string
 }
 
 variable "vsphere_password" {
@@ -11,15 +11,15 @@ variable "vsphere_server" {
 }
 
 variable "datacenter" {
-  type    = string
+  type = string
 }
 
 variable "cluster" {
-  type    = string
+  type = string
 }
 
 variable "datastore" {
-  type    = string
+  type = string
 }
 
 variable "datastore_url" {
@@ -27,19 +27,19 @@ variable "datastore_url" {
 }
 
 variable "vm_folder" {
-  type    = string
+  type = string
 }
 
 variable "resource_pool" {
-  type    = string
+  type = string
 }
 
 variable "network" {
-  type    = string
+  type = string
 }
 
 variable "ubuntu_template" {
-  type    = string
+  type = string
 }
 
 variable "http_proxy_host" {

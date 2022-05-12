@@ -1,7 +1,6 @@
 
-# vmwAviControllerFromTemplate
 
-## Goals
+## automate AVI controller 
 Spin up n avi Controller in v-center
 
 ## Prerequisites:

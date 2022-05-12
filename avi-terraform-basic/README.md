@@ -59,23 +59,10 @@ Avi 20.1.1 with one controller node or three controller nodes
     }
   }
 ```
-Also, the lists associated with the three variables above need to have a length equal to the variable controller.count.
+Also, you can choose between one contrroller or few (cluster)
 i.e, if controller.count == 3, then you need to have:
   - controller.networks with 3 elements like ["netA", "netB", "netC"]
   - controller.mgmt_ips with 3 elements like ["ipA", "ipB", "ipC"]
   - controller.mgmt_masks with 3 elements like ["maskA", "maskB", "maskC"]
   - controller.default_gws with 3 elements like ["gwA", "gwB", "gwC"]
 
-## Use the the terraform script to:
-- Create a new folder within v-center
-- Spin up n Avi Controller (DHCP or static IP)
-
-## Run the terraform:
-- to apply the plan
-```
-cd ~ ; git clone https://github.com/tacobayle/vmwAviControllerFromTemplate ; cd vmwAviControllerFromTemplate ; terraform init ; terraform apply -auto-approve
-```
-- to destroy the plan
-```
-terraform destroy -auto-approve
-```

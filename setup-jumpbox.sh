@@ -8,8 +8,6 @@ set -a
 . /home/ubuntu/.govc.env
 . /home/ubuntu/.vmd.env
 set +a
-#export VMD_USER=$VMD_USER
-#export VMD_PASS=$VMD_PASS
 
 # Set up HTTP proxy support
 if ! [ -z "$HTTP_PROXY_HOST" ]; then
@@ -75,14 +73,12 @@ if [ -f /home/ubuntu/tanzu-cli.tar ]; then
     printf "\n# Tanzu shell completion\nsource '/home/ubuntu/.config/tanzu/completion.bash.inc'\n" >> ~/.bashrc
 fi
 
-# Generate a default TKG configuration.
+# Generate a TKG cluster configurations
 if ! [ -f /home/ubuntu/.config/tanzu/tkg/clusterconfigs/mgmt-cluster-config.yaml ]; then
   tanzu config init > /dev/null 2>&1
   mkdir -p ~/.config/tanzu/tkg/clusterconfigs
-  cat <<EOF >> ~/.config/tanzu/tkg/clusterconfigs/mgmt-cluster-config.yaml
-CLUSTER_NAME: mgmt
-VSPHERE_CONTROL_PLANE_ENDPOINT: "$CONTROL_PLANE_ENDPOINT"
-EOF
+  mv /home/ubuntu/mgmt-cluster-config.yaml /home/ubuntu/.config/tanzu/tkg/clusterconfigs/mgmt-cluster-config.yaml
+  mv /home/ubuntu/dev01-cluster-config.yaml /home/ubuntu/.config/tanzu/tkg/clusterconfigs/dev01-cluster-config.yaml
 fi
 
 # Generate a SSH keypair.
@@ -117,7 +113,7 @@ EOF
   /bin/rm -f /home/ubuntu/tkg-cluster.yml
 fi
 
-# Install yq.
+# Install jq & yq.
 sudo snap install jq
 sudo snap install yq
 
@@ -132,6 +128,11 @@ if ! [ -f $TKG_OVA_PATH ]; then
     govc vm.markastemplate ${TKG_OVA_NAME} && \
     rm tkg-ova.json
 fi
+
+# Upload AVI OVA - AVI files are available on Vault
+# https://vault.vmware.com/group/nsx/avi-networks-technical-resources
+# TODO
+
 
 # Configure VIm.
 if ! [ -f /home/ubuntu/.vimrc ]; then
@@ -151,9 +152,12 @@ fi
 
 # Install Docker.
 sudo apt-get update && \
-sudo apt-get -y install docker.io && \
-sudo ln -sf /usr/bin/docker.io /usr/local/bin/docker && \
-sudo usermod -aG docker ubuntu
+  sudo apt-get -y install docker.io && \
+  sudo ln -sf /usr/bin/docker.io /usr/local/bin/docker && \
+  sudo usermod -aG docker ubuntu
+
+# Various
+sudo apt-get install -y unzip
 
 # Install K9s.
 if ! [ -f /usr/local/bin/k9s ]; then
@@ -179,3 +183,10 @@ KIND_VERSION=v0.11.1
 curl -Lo ./kind https://kind.sigs.k8s.io/dl/$KIND_VERSION/kind-linux-amd64
 sudo mv kind /usr/local/bin
 chmod +x /usr/local/bin/kind
+
+# Add Aliases
+if ! [ -f /home/ubuntu/.bash_aliases ]; then
+  echo 'alias k=kubectl' >> /home/ubuntu/.bash_aliases
+  echo 'complete -F __start_kubectl k' >> /home/ubuntu/.bash_aliases
+  echo 'alias kctx=kubectx' >> /home/ubuntu/.bash_aliases
+fi

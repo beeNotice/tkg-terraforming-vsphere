@@ -1,23 +1,23 @@
-vsphere_user = "administrator@vsphere.local"
+vsphere_user     = "administrator@vsphere.local"
+vsphere_server   = "changeme"
 vsphere_password = "changeme"
-vsphere_server   = "vcsa.mydomain.com"
-network          = "net"
-datastore_url    = "ds:///vmfs/volumes/changeme/"
-datacenter = "vc01"
-cluster = "vc01cl01"
-datastore = "vsanDatastore"
+network          = "user-workload"
+datastore_url    = "ds:///vmfs/volumes/vsan:changeme/"
+datacenter       = "vc01"
+cluster          = "vc01cl01"
+datastore        = "vsanDatastore"
 
-resource_pool = "tkg"
-vm_folder = "tkg"
+resource_pool = "TKG"
+vm_folder     = "tkg"
 
-network = "user-workload"
 ubuntu_template = "focal-server-cloudimg-amd64"
 
-customerconnect_user="changeme"
-customerconnect_pass="changeme"
+customerconnect_user = "changeme"
+customerconnect_pass = "changeme"
 
 # Management control plane endpoint - Outside of DHCP range
-control_plane_endpoint = "192.168.100.1"
+mgt_control_plane_endpoint = "changeme"
+wkl_control_plane_endpoint = "changeme"
 
 # Uncomment to enable HTTP proxy support.
 # http_proxy_host = "my.http.proxy"

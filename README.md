@@ -7,7 +7,7 @@ to vSphere 6.7u3, leveraging these Terraform scripts.
 
 ### Prepare vSphere infrastructure
 
-First, make sure DHCP is enabled: this service is required for all TKG nodes.
+First, make sure DHCP is enabled : this service is required for all TKG nodes.
 
 Create a resource pool under the cluster where TKG is deployed to: use name `TKG`.
 
@@ -16,7 +16,7 @@ Create a resource pool under the cluster where TKG is deployed to: use name `TKG
 All TKG VMs will be deployed to this resource pool.
 
 You need to deploy Ubuntu as OVF templates to vSphere to initilize the VM.
-- [Ubuntu server cloud image OVA](https://cloud-images.ubuntu.com/focal/20220505/focal-server-cloudimg-amd64.ova): used for the jumpbox VM
+- [Ubuntu server cloud image OVA](https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.ova): used for the jumpbox VM
 
 ![Deploy OVF template](images/vsphere-deploy-ovf-part1.png)
 
@@ -47,14 +47,14 @@ datastore_url    = "ds:///vmfs/volumes/changeme/"
 
 (...)
 
-# Management control plane endpoint.
-control_plane_endpoint = 192.168.100.1
+# Control plane endpoints.
+mgt_control_plane_endpoint = 192.168.100.1
+wkl_control_plane_endpoint = 192.168.100.2
 ```
 
 As specified in the [TKG documentation](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid/1.4/vmware-tanzu-kubernetes-grid-14/GUID-mgmt-clusters-vsphere.html#kubevip-and-nsx-advanced-load-balancer-for-vsphere-2),
 you need to use a static IP for the control plane of the management cluster.
-Make sure that this IP address is in the same subnet as the DHCP range, but do not choose
-an IP address in the DHCP range.
+Make sure that these IP addresses are not in the DHCP range, but are in the same subnet as the DHCP range.
 
 ## Bootstrap the jumpbox
 
@@ -98,24 +98,11 @@ Create the TKG management cluster:
 ```bash
 $ tanzu management-cluster create --file $HOME/.config/tanzu/tkg/clusterconfigs/mgmt-cluster-config.yaml
 ```
-
 This process takes less than 10 minutes.
 
 ## Create TKG workload clusters
 
 You can now create workload clusters.
-
-Create a cluster configuration file in `.config/tanzu/tkg/clusterconfigs`.
-
-You may reuse the content from the management cluster configuration file,
-adjusting the control plane endpoint
-(do not pick the same IP address used for the management cluster!):
-
-```yaml
-CLUSTER_NAME: dev01
-CLUSTER_PLAN: dev
-VSPHERE_CONTROL_PLANE_ENDPOINT: 192.168.100.10
-```
 
 Create the workload cluster:
 ```bash
@@ -124,7 +111,13 @@ $ tanzu cluster create --file $HOME/.config/tanzu/tkg/clusterconfigs/dev01-clust
 
 This process takes less than 5 minutes.
 
-Create a `kubeconfig` file to access your workload cluster:
+Import kubeconfig to your context :
+```bash
+$ tanzu cluster kubeconfig get dev01 --admin
+$ kubectl config use-context dev01-admin@dev01
+```
+
+Alternatilvely you can export a `kubeconfig` file to access your workload cluster:
 ```bash
 $ tanzu cluster kubeconfig get dev01 --admin --export-file dev01.kubeconfig
 ```

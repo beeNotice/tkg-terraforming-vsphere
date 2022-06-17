@@ -52,7 +52,11 @@ variable "http_proxy_port" {
   default = 0
 }
 
-variable "control_plane_endpoint" {
+variable "mgt_control_plane_endpoint" {
+  type = string
+}
+
+variable "wkl_control_plane_endpoint" {
   type = string
 }
 

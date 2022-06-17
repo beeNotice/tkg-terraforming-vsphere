@@ -4,12 +4,24 @@
 CLUSTER_PLAN: dev
 
 INFRASTRUCTURE_PROVIDER: vsphere
-IDENTITY_MANAGEMENT_TYPE: none
 ENABLE_CEIP_PARTICIPATION: "false"
 
 CLUSTER_CIDR: 100.96.0.0/11
 SERVICE_CIDR: 100.64.0.0/13
 
+#! ---------------------------------------------------------------------
+#! Identity management configuration
+#! ---------------------------------------------------------------------
+
+IDENTITY_MANAGEMENT_TYPE: "none"
+
+#! Settings for IDENTITY_MANAGEMENT_TYPE: "oidc"
+# OIDC_IDENTITY_PROVIDER_CLIENT_ID:
+# OIDC_IDENTITY_PROVIDER_CLIENT_SECRET:
+# OIDC_IDENTITY_PROVIDER_GROUPS_CLAIM: groups
+# OIDC_IDENTITY_PROVIDER_ISSUER_URL:
+# OIDC_IDENTITY_PROVIDER_SCOPES: email
+# OIDC_IDENTITY_PROVIDER_USERNAME_CLAIM: email
 
 #! ---------------------------------------------------------------------
 #! vSphere configuration

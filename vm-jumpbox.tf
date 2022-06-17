@@ -14,12 +14,27 @@ resource "local_file" "tkg_configuration_file" {
   file_permission = "0644"
 }
 
+resource "local_file" "mgt_configuration_file" {
+  content = templatefile("mgmt-cluster-config.yaml.tpl", {
+    mgt_control_plane_endpoint   = var.mgt_control_plane_endpoint
+  })
+  filename        = "mgmt-cluster-config.yaml"
+  file_permission = "0644"
+}
+
+resource "local_file" "wkl_configuration_file" {
+  content = templatefile("dev01-cluster-config.yaml.tpl", {
+    wkl_control_plane_endpoint   = var.wkl_control_plane_endpoint
+  })
+  filename        = "dev01-cluster-config.yaml"
+  file_permission = "0644"
+}
+
 # Generate additional configuration file.
 resource "local_file" "env_file" {
   content = templatefile("env.tpl", {
     http_proxy_host        = var.http_proxy_host,
-    http_proxy_port        = var.http_proxy_port,
-    control_plane_endpoint = var.control_plane_endpoint
+    http_proxy_port        = var.http_proxy_port
   })
   filename        = "env"
   file_permission = "0644"
@@ -112,6 +127,16 @@ resource "vsphere_virtual_machine" "jumpbox" {
     destination = "/home/ubuntu/tkg-cluster.yml"
   }
   provisioner "file" {
+    # Copy TKG mgt configuration file.
+    source      = "mgmt-cluster-config.yaml"
+    destination = "/home/ubuntu/mgmt-cluster-config.yaml"
+  }
+  provisioner "file" {
+    # Copy TKG wkl configuration file.
+    source      = "dev01-cluster-config.yaml"
+    destination = "/home/ubuntu/dev01-cluster-config.yaml"
+  }
+  provisioner "file" {
     # Copy additional configuration file.
     source      = "env"
     destination = "/home/ubuntu/.env"
@@ -131,12 +156,17 @@ resource "vsphere_virtual_machine" "jumpbox" {
     source      = "setup-jumpbox.sh"
     destination = "/home/ubuntu/setup-jumpbox.sh"
   }
+  provisioner "file" {
+    # Copy install scripts.
+    source      = "setup-cluster.sh"
+    destination = "/home/ubuntu/setup-cluster.sh"
+  }
   provisioner "remote-exec" {
     # Set up jumpbox.
     inline = [
       "echo ${vsphere_virtual_machine.jumpbox.default_ip_address} jumpbox | sudo tee -a /etc/hosts",
       "chmod +x /home/ubuntu/setup-jumpbox.sh",
-      "sh /home/ubuntu/setup-jumpbox.sh",
+      "sh /home/ubuntu/setup-jumpbox.sh"
     ]
   }
 }

@@ -67,3 +67,41 @@ variable "customerconnect_user" {
 variable "customerconnect_pass" {
   type = string
 }
+
+
+variable "avi_ova_name" {
+  type = string
+}
+variable "avi_ip" {
+  type = string
+}
+variable "avi_controller" {
+  type = string
+}
+variable "avi_controller_network_mask" {
+  type = string
+}
+variable "avi_controller_network_gateway" {
+  type = string
+}
+variable "avi_username" {
+  type = string
+}
+variable "avi_password" {
+  type = string
+}
+variable "avi_cloud_name" {
+  type = string
+}
+variable "avi_service_engine_group" {
+  type = string
+}
+variable "avi_data_network" {
+  type = string
+}
+variable "avi_data_network_cidr" {
+  type = string
+}
+variable "avi_ca_data_b64" {
+  type = string
+}

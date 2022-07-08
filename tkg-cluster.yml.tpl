@@ -40,6 +40,23 @@ DEPLOY_TKG_ON_VSPHERE7: true
 ENABLE_TKGS_ON_VSPHERE7: false
 
 #! ---------------------------------------------------------------------
+#! NSX Advanced Load Balancer configuration
+#! ---------------------------------------------------------------------
+
+AVI_ENABLE: false
+AVI_CONTROLLER_VERSION: 20.1.7
+AVI_CONTROL_PLANE_HA_PROVIDER: false
+AVI_CONTROLLER: "${avi_controller}"
+AVI_USERNAME: "${avi_username}"
+AVI_PASSWORD: "${avi_password}"
+AVI_CLOUD_NAME: ${avi_cloud_name}
+AVI_SERVICE_ENGINE_GROUP: ${avi_service_engine_group}
+AVI_DATA_NETWORK: ${avi_data_network}
+AVI_DATA_NETWORK_CIDR: ${avi_data_network_cidr}
+AVI_CA_DATA_B64: "${avi_ca_data_b64}"
+AVI_LABELS: ""
+
+#! ---------------------------------------------------------------------
 #! Node configuration
 #! ---------------------------------------------------------------------
 VSPHERE_CONTROL_PLANE_NUM_CPUS: "2"
@@ -50,6 +67,6 @@ VSPHERE_WORKER_NUM_CPUS: "2"
 VSPHERE_WORKER_MEM_MIB: "8192"
 VSPHERE_WORKER_DISK_GIB: "100"
 
-OS_NAME: "photon"
-OS_VERSION: "3"
+OS_NAME: "ubuntu"
+OS_VERSION: "20.04"
 OS_ARCH: "amd64"

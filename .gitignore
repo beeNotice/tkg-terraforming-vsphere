@@ -14,3 +14,4 @@ govc.env
 vmd.env
 tce-*.tar.gz
 .vscode/
+avi.env

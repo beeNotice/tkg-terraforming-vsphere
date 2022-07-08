@@ -92,11 +92,11 @@ A default configuration for the management cluster has been generated in
 the file `~/.config/tanzu/tkg/clusterconfigs/mgmt-cluster-config.yaml`.
 You may want to edit this file before creating the management cluster.
 
-NOTE: Default configuration parameters are available in `~/.config/tanzu/tkg/config.yaml`. See [Reference - 1](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid/1.4/vmware-tanzu-kubernetes-grid-14/GUID-mgmt-clusters-config-vsphere.html) and [Reference - 2](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid/1.4/vmware-tanzu-kubernetes-grid-14/GUID-tanzu-config-reference.html)
+NOTE: Default configuration parameters are available in `~/.config/tanzu/tkg/config.yaml`. See [Reference - 1](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid/1.5/vmware-tanzu-kubernetes-grid-15/GUID-mgmt-clusters-config-vsphere.html) and [Reference - 2](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid/1.5/vmware-tanzu-kubernetes-grid-15/GUID-tanzu-config-reference.html)
 
 Create the TKG management cluster:
 ```bash
-$ tanzu management-cluster create --file $HOME/.config/tanzu/tkg/clusterconfigs/mgmt-cluster-config.yaml
+$ tanzu mc create --file $HOME/.config/tanzu/tkg/clusterconfigs/mgmt-cluster-config.yaml
 ```
 This process takes less than 10 minutes.
 

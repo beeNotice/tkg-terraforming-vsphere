@@ -45,8 +45,8 @@ fi
 
 # Download Tanzu CLI
 if ! [ -f /home/ubuntu/vmd-downloads/tanzu-cli-bundle-linux-amd64.tar ]; then
-  vmd download -p vmware_tanzu_kubernetes_grid -s tkg -v 1.4.2 -f 'tanzu-cli-bundle-linux-amd64.tar' --accepteula && \
-    cp /home/ubuntu/vmd-downloads/tanzu-cli-bundle-linux-amd64.tar /home/ubuntu/tanzu-cli.tar
+  vmd download -p vmware_tanzu_kubernetes_grid -s tkg -v 1.5.4 -f 'tanzu-cli-bundle-linux-amd64.tar.gz' --accepteula && \
+    cp /home/ubuntu/vmd-downloads/tanzu-cli-bundle-linux-amd64.tar.gz /home/ubuntu/tanzu-cli.tar
 fi
 
 # Uncompress TKG archive and install CLI.
@@ -61,9 +61,6 @@ if [ -f /home/ubuntu/tanzu-cli.tar ]; then
     gunzip vendir-linux-amd64*.gz && sudo install vendir-linux-amd64* /usr/local/bin/vendir && \
     tanzu init && \
     tanzu plugin clean
-
-  # For TKG 1.4 and earlier:
-  tanzu plugin install --local /home/ubuntu/tanzu/cli all
 
   # For TKG 1.5+:
   cd /home/ubuntu/tanzu && tanzu plugin sync
@@ -88,7 +85,7 @@ fi
 
 # Install K8s CLI.
 if ! [ -f /usr/local/bin/kubectl ]; then
-  K8S_VERSION=v1.22.5
+  K8S_VERSION=v1.22.9
   curl -LO https://storage.googleapis.com/kubernetes-release/release/$K8S_VERSION/bin/linux/amd64/kubectl && \
     chmod +x ./kubectl && \
     sudo install ./kubectl /usr/local/bin/kubectl && \
@@ -118,21 +115,17 @@ sudo snap install jq
 sudo snap install yq
 
 # Upload TKG OVA
-TKG_OVA_NAME=photon-3-kube-v1.21.8+vmware.1-tkg.2-49e70fcb8bdd006b8a1cf7823484f98f
+# TKG_OVA_NAME=photon-3-kube-v1.22.9+vmware.1-tkg.1-06852a87cc9526f5368519a709525c68
+TKG_OVA_NAME=ubuntu-2004-kube-v1.22.9+vmware.1-tkg.1-2182cbabee08edf480ee9bc5866d6933
 TKG_OVA_FILE=$TKG_OVA_NAME.ova
 TKG_OVA_PATH=/home/ubuntu/vmd-downloads/$TKG_OVA_FILE
 if ! [ -f $TKG_OVA_PATH ]; then
-  vmd download -p vmware_tanzu_kubernetes_grid -s tkg -v 1.4.2 -f $TKG_OVA_FILE --accepteula && \
+  vmd download -p vmware_tanzu_kubernetes_grid -s tkg -v 1.5.4 -f $TKG_OVA_FILE --accepteula && \
     govc import.spec ${TKG_OVA_PATH} | jq '.Name="'${TKG_OVA_NAME}'"' | jq '.NetworkMapping [0].Network="'"${GOVC_NETWORK}"'"' > tkg-ova.json && \
     govc import.ova -options=tkg-ova.json ${TKG_OVA_PATH} && \
     govc vm.markastemplate ${TKG_OVA_NAME} && \
     rm tkg-ova.json
 fi
-
-# Upload AVI OVA - AVI files are available on Vault
-# https://vault.vmware.com/group/nsx/avi-networks-technical-resources
-# TODO
-
 
 # Configure VIm.
 if ! [ -f /home/ubuntu/.vimrc ]; then

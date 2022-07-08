@@ -8,7 +8,7 @@ data "vsphere_compute_cluster" "compute_cluster" {
 }
 
 data "vsphere_datastore" "datastore" {
-  name = var.vcenter.datastore
+  name          = var.vcenter.datastore
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
@@ -18,8 +18,8 @@ data "vsphere_resource_pool" "pool" {
 }
 
 data "vsphere_network" "networks" {
-  count = length(var.controller.networks)
-  name = element(var.controller.networks, count.index)
+  count         = length(var.controller.networks)
+  name          = element(var.controller.networks, count.index)
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 

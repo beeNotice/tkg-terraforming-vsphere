@@ -14,13 +14,13 @@ resource "vsphere_virtual_machine" "controller" {
     network_id = data.vsphere_network.networks[count.index].id
   }
 
-  num_cpus = var.controller["cpu"]
-  memory = var.controller["memory"]
+  num_cpus                   = var.controller["cpu"]
+  memory                     = var.controller["memory"]
   wait_for_guest_net_timeout = var.controller["wait_for_guest_net_timeout"]
 
-  guest_id = data.vsphere_virtual_machine.controller_template.guest_id
-  scsi_type = data.vsphere_virtual_machine.controller_template.scsi_type
-  scsi_bus_sharing = data.vsphere_virtual_machine.controller_template.scsi_bus_sharing
+  guest_id              = data.vsphere_virtual_machine.controller_template.guest_id
+  scsi_type             = data.vsphere_virtual_machine.controller_template.scsi_type
+  scsi_bus_sharing      = data.vsphere_virtual_machine.controller_template.scsi_bus_sharing
   scsi_controller_count = data.vsphere_virtual_machine.controller_template.scsi_controller_scan_count
 
   disk {
@@ -36,9 +36,9 @@ resource "vsphere_virtual_machine" "controller" {
 
   vapp {
     properties = {
-      "mgmt-ip"     = element(var.controller.mgmt_ips, count.index)
-      "mgmt-mask"   = element(var.controller.mgmt_masks, count.index)
-      "default-gw"  = element(var.controller.default_gws, count.index)
+      "mgmt-ip"    = element(var.controller.mgmt_ips, count.index)
+      "mgmt-mask"  = element(var.controller.mgmt_masks, count.index)
+      "default-gw" = element(var.controller.default_gws, count.index)
     }
   }
 

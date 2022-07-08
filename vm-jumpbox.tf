@@ -1,14 +1,22 @@
 # Generate TKG configuration.
 resource "local_file" "tkg_configuration_file" {
   content = templatefile("tkg-cluster.yml.tpl", {
-    vcenter_server   = var.vsphere_server,
-    vcenter_user     = var.vsphere_user,
-    vcenter_password = var.vsphere_password,
-    datacenter       = var.datacenter,
-    datastore        = var.datastore,
-    network          = var.network,
-    resource_pool    = var.resource_pool,
-    vm_folder        = var.vm_folder
+    vcenter_server           = var.vsphere_server,
+    vcenter_user             = var.vsphere_user,
+    vcenter_password         = var.vsphere_password,
+    datacenter               = var.datacenter,
+    datastore                = var.datastore,
+    network                  = var.network,
+    resource_pool            = var.resource_pool,
+    vm_folder                = var.vm_folder,
+    avi_controller           = var.avi_controller,
+    avi_username             = var.avi_username,
+    avi_password             = var.avi_password,
+    avi_cloud_name           = var.avi_cloud_name,
+    avi_service_engine_group = var.avi_service_engine_group,
+    avi_data_network         = var.avi_data_network,
+    avi_data_network_cidr    = var.avi_data_network_cidr,
+    avi_ca_data_b64          = var.avi_ca_data_b64
   })
   filename        = "tkg-cluster.yml"
   file_permission = "0644"
@@ -16,7 +24,7 @@ resource "local_file" "tkg_configuration_file" {
 
 resource "local_file" "mgt_configuration_file" {
   content = templatefile("mgmt-cluster-config.yaml.tpl", {
-    mgt_control_plane_endpoint   = var.mgt_control_plane_endpoint
+    mgt_control_plane_endpoint = var.mgt_control_plane_endpoint
   })
   filename        = "mgmt-cluster-config.yaml"
   file_permission = "0644"
@@ -24,7 +32,7 @@ resource "local_file" "mgt_configuration_file" {
 
 resource "local_file" "wkl_configuration_file" {
   content = templatefile("dev01-cluster-config.yaml.tpl", {
-    wkl_control_plane_endpoint   = var.wkl_control_plane_endpoint
+    wkl_control_plane_endpoint = var.wkl_control_plane_endpoint
   })
   filename        = "dev01-cluster-config.yaml"
   file_permission = "0644"
@@ -33,8 +41,8 @@ resource "local_file" "wkl_configuration_file" {
 # Generate additional configuration file.
 resource "local_file" "env_file" {
   content = templatefile("env.tpl", {
-    http_proxy_host        = var.http_proxy_host,
-    http_proxy_port        = var.http_proxy_port
+    http_proxy_host = var.http_proxy_host,
+    http_proxy_port = var.http_proxy_port
   })
   filename        = "env"
   file_permission = "0644"
@@ -64,6 +72,19 @@ resource "local_file" "vmd_file" {
     customerconnect_pass = var.customerconnect_pass
   })
   filename        = "vmd.env"
+  file_permission = "0644"
+}
+
+# Generate vmd configuration file.
+resource "local_file" "avi_file" {
+  content = templatefile("avi.tpl", {
+    vm_folder                      = var.vm_folder,
+    avi_ip                         = var.avi_ip,
+    avi_controller_network_mask    = var.avi_controller_network_mask,
+    avi_controller_network_gateway = var.avi_controller_network_gateway,
+    avi_ova_name                   = var.avi_ova_name
+  })
+  filename        = "avi.env"
   file_permission = "0644"
 }
 
@@ -150,6 +171,11 @@ resource "vsphere_virtual_machine" "jumpbox" {
     # Copy vmd configuration file.
     source      = "vmd.env"
     destination = "/home/ubuntu/.vmd.env"
+  }
+  provisioner "file" {
+    # Copy vmd configuration file.
+    source      = "avi.env"
+    destination = "/home/ubuntu/.avi.env"
   }
   provisioner "file" {
     # Copy install scripts.
